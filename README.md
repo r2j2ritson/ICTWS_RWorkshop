@@ -12,5 +12,5 @@ To ask any follow-up questions related to the workshop or general help in R, pos
 
 ## Recommended Reading
 Spatial Analysis
-[Geocomputation in R](https://geocompr.robinlovelace.net/index.html)
-[Spatial Data Science in R](https://rspatial.org/)
+- [Geocomputation in R](https://geocompr.robinlovelace.net/index.html)
+- [Spatial Data Science in R](https://rspatial.org/)
