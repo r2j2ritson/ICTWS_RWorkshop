@@ -11,6 +11,12 @@ with studying a programming language and novices tend to lose interest if they d
 To ask any follow-up questions related to the workshop or general help in R, post in the [Issues](https://github.com/r2j2ritson/ICTWS_RWorkshop/issues) tab.
 
 ## Recommended Reading
+Packages we've used
+- [sf](https://cran.r-project.org/web/packages/sf/sf.pdf)
+- [terra](https://cran.r-project.org/web/packages/terra/terra.pdf)
+- [tidyterra](https://dieghernan.github.io/tidyterra/articles/tidyterra.html)
+- [maptiles](https://cran.r-project.org/web/packages/maptiles/maptiles.pdf)
+
 Spatial Analysis
 - [Geocomputation in R](https://geocompr.robinlovelace.net/index.html)
 - [Spatial Data Science in R](https://rspatial.org/)
