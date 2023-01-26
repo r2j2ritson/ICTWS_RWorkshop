@@ -12,17 +12,24 @@ knitr::opts_chunk$set(echo = TRUE)
 # GIS Exercise
 
 ## Background
+Intro text...
 
-Part one generated with assistance from chatGPT.
-
+This exercise assumes basic familiarity with foundational geographic information science concepts:
+- Projections and Coordinate Reference Systems
+- Vector (i.e. points and polygons) and raster data types
 
 ## Package Installation and Set-up
+
+We need to the 'sf' package for working with vector data (points and polygons), 'terra' for working with raster data, 'tidyterra' extends 'ggplot2' to work with 'terra' objects, 'maptiles' provides access to basemap imagery, 'move' and 'ctmm' are packages used for the analysis of wildlife tracking data and include real-world example tracking datasets we can practice with
 
 ```{r install and load,eval=FALSE}
 # Install
 install.packages('sf')
 install.packages('terra')
 install.packages('tidyterra')
+install.packages('maptiles')
+install.packages('move') #optional
+install.packages('ctmm') #optional
 ```
 ```{r}
 # Load
@@ -30,25 +37,29 @@ require(sf)
 require(terra)
 require(ggplot2)
 require(tidyterra)
+require(maptiles)
+require(move) #optional
+require(ctmm) #optional
 ```
 
 ## Create Simple Data
-
+First, let's use `sf` to create a simple point feature.
 ```{r create a point}
 # Create simple point feature
 point1 <- st_point(c(1, 3))
 point1
 plot(point1,col='red',pch=16,cex=2,main="A Simple Point Feature")
 ```
-
+Next, we are going to create a simple polygon. 
 ```{r create a polygon}
 # Create simple polygon feature
 poly1 <- st_polygon(list(rbind(c(0, 0), c(5, 0), c(5, 5), c(0, 5), c(0, 0))))
 poly1
 plot(poly1,col='blue',border='red',main="A Simple Polygon Feature")
 ```
+Notice that we need 5 coordinates for a four sided shape. This is because we need to be sure to close the shape so it is valid. The first and last coordiantes of your polygon should always be the same.
 
-
+Shifting to the 'terra' package, lets create a simple raster with 100 cells and give the cells sequential values from 0 to 5.
 ```{r create a raster}
 # Create simple raster
 raster1 <- rast(nrows = 10, ncols = 10)
@@ -56,35 +67,36 @@ values(raster1) <- seq(0,5,1)
 raster1
 plot(raster1,main="A Simple Raster")
 ```
+You can see that the colors of the raster cells repeat in sequences of six based on the assigned values.
 
-```{r Intersection}
-# Find intersection
-intersection <- st_intersection(point1, poly1)
-intersection
-```
-
+Next, lets extract the raster cell value to the point we created. Since we created the point with `sf`, we need to first coerce into a format usable by `terra`.
 ```{r Extract Value}
 # Convert 'sf' XY object to 'terra' SpatVector object
-int_vect <- terra::vect(intersection)
+vect_pt <- terra::vect(point1)
+
 # Extract raster value
-extracted_value <- extract(raster1, int_vect)
+extracted_value <- extract(raster1, vect_pt)
 extracted_value
 ```
-"ID" corresponds with the point's ID column and "lyr.1" corresponds with the layer name of the raster we created.
+"ID" corresponds with the point number and "lyr.1" corresponds with the layer name of the raster we created.
 
+We can examine whether the extracted value was correct by plotting the point over the raster to visually inspect the cell value.
 ```{r plot point and raster}
 # Is the extracted value correct?
 terra::plot(raster1,main="Raster with Point")
-terra::plot(int_vect,cex=1.25,col='blue',add=T)
+terra::plot(vect_pt,cex=1.25,col='blue',add=T)
 ```
 Do they match up?
 
 ## Simple Map
+Now that you've been introduced to 'sf' and 'terra', we can incorporate them with what we've learned in 'ggplot2'. Let's begin by plotting the 'sf' point with 'ggplot2'.
 ```{r first point map}
 # Plot point
 ggplot(point1) + geom_sf()
 ```
+Compare to differences of 'geom_sf' to 'geom_point'...
 
+Next, try plotting the polygon and the point together with 'ggplot2'.
 ```{r first polygon map}
 # Plot polygon
 ggplot() + 
@@ -92,12 +104,14 @@ ggplot() +
   geom_sf(data=point1,color='blue',size=2)
 ```
 
+Up until now, coordinate reference hasn't been a big deal. However, its always important to make sure the projections of all your layers are identical before trying to plot them together.
 ```{r first raster map}
 #Set CRS
 ## Convert 'sf' objects to 'terra'
 poly1_vect <- terra::vect(poly1)
 point1_vect <- terra::vect(point1)
 
+#insert code before and after to test projections of all layers....
 ## Set CRS
 terra::crs(poly1_vect) <- terra::crs(raster1)
 terra::crs(point1_vect) <- terra::crs(raster1)
@@ -112,7 +126,9 @@ ggplot() +
   geom_sf(data=poly1_vect,color='red',fill='yellow',linewidth=1) +
   geom_sf(data=point1_vect,color='purple',size=1.5)
 ```
+Our polygon is very small, so we want to also adjust the extent of the raster before we plot it so we can actually see the polygon. 
 
+You've just made your first simple map with 'ggplot2'!
 
 ### chatGPT's tips to becoming a data literate wildlife biologist
 * Learn the basics of statistics: Wildlife biology often involves the analysis of large amounts of data, and a strong understanding of statistics is essential for making sense of this data. Start by learning the basics of probability and statistics, such as descriptive statistics, probability distributions, and inferential statistics.
@@ -122,6 +138,7 @@ ggplot() +
 * Learn GIS: Geographic information systems (GIS) are widely used in wildlife biology to map and analyze spatial data. Learn how to use GIS software such as ArcGIS or QGIS and become familiar with concepts such as projections, coordinate systems, and spatial data formats. Additionally, learn how to use R packages such as 'sf' and 'terra' for GIS. Understanding how to map and analyze spatial data will be extremely useful in a wildlife biology career.
 
 ## Challenge
+expand this and elaborate... include packages that have these test shapes and rasters as internal files...
 ```{r,eval=F}
 states <- st_read("path/to/states.shp")
 
@@ -161,7 +178,8 @@ ggplot(data = data.frame(state_areas, state_elevations)) +
 * Practice, practice, practice: The best way to learn R is by practicing. Start with small projects and work your way up to more complex analyses. The more you practice, the more comfortable you will become with the language.
 
 
-## Wildlife Location Data
+## Wildlife Location Data Challenge
+Expand and elaborate on this exercise....
 ```{r}
 install.packages('move')
 require(move)
@@ -213,3 +231,4 @@ map_z5
 map_z8  
 map_z10
 ```
+A simple field map!
