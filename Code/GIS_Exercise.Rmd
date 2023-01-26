@@ -1,0 +1,215 @@
+---
+title: 'ICTWS 2023: R Workshop'
+author: "Rob Ritson"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# GIS Exercise
+
+## Background
+
+Part one generated with assistance from chatGPT.
+
+
+## Package Installation and Set-up
+
+```{r install and load,eval=FALSE}
+# Install
+install.packages('sf')
+install.packages('terra')
+install.packages('tidyterra')
+```
+```{r}
+# Load
+require(sf)
+require(terra)
+require(ggplot2)
+require(tidyterra)
+```
+
+## Create Simple Data
+
+```{r create a point}
+# Create simple point feature
+point1 <- st_point(c(1, 3))
+point1
+plot(point1,col='red',pch=16,cex=2,main="A Simple Point Feature")
+```
+
+```{r create a polygon}
+# Create simple polygon feature
+poly1 <- st_polygon(list(rbind(c(0, 0), c(5, 0), c(5, 5), c(0, 5), c(0, 0))))
+poly1
+plot(poly1,col='blue',border='red',main="A Simple Polygon Feature")
+```
+
+
+```{r create a raster}
+# Create simple raster
+raster1 <- rast(nrows = 10, ncols = 10)
+values(raster1) <- seq(0,5,1)
+raster1
+plot(raster1,main="A Simple Raster")
+```
+
+```{r Intersection}
+# Find intersection
+intersection <- st_intersection(point1, poly1)
+intersection
+```
+
+```{r Extract Value}
+# Convert 'sf' XY object to 'terra' SpatVector object
+int_vect <- terra::vect(intersection)
+# Extract raster value
+extracted_value <- extract(raster1, int_vect)
+extracted_value
+```
+"ID" corresponds with the point's ID column and "lyr.1" corresponds with the layer name of the raster we created.
+
+```{r plot point and raster}
+# Is the extracted value correct?
+terra::plot(raster1,main="Raster with Point")
+terra::plot(int_vect,cex=1.25,col='blue',add=T)
+```
+Do they match up?
+
+## Simple Map
+```{r first point map}
+# Plot point
+ggplot(point1) + geom_sf()
+```
+
+```{r first polygon map}
+# Plot polygon
+ggplot() + 
+  geom_sf(data=poly1,fill='red',color='blue',linewidth=2) +
+  geom_sf(data=point1,color='blue',size=2)
+```
+
+```{r first raster map}
+#Set CRS
+## Convert 'sf' objects to 'terra'
+poly1_vect <- terra::vect(poly1)
+point1_vect <- terra::vect(point1)
+
+## Set CRS
+terra::crs(poly1_vect) <- terra::crs(raster1)
+terra::crs(point1_vect) <- terra::crs(raster1)
+
+#Clip raster extent to polygon
+ext <- terra::ext(poly1_vect)*15
+raster2 <- terra::crop(raster1,ext)
+
+# Plot raster
+ggplot() + 
+  geom_spatraster(data = raster2) +
+  geom_sf(data=poly1_vect,color='red',fill='yellow',linewidth=1) +
+  geom_sf(data=point1_vect,color='purple',size=1.5)
+```
+
+
+### chatGPT's tips to becoming a data literate wildlife biologist
+* Learn the basics of statistics: Wildlife biology often involves the analysis of large amounts of data, and a strong understanding of statistics is essential for making sense of this data. Start by learning the basics of probability and statistics, such as descriptive statistics, probability distributions, and inferential statistics.
+
+* Learn data manipulation and visualization: Wildlife biologists often need to work with large datasets, and it's important to be able to manipulate and visualize this data effectively. Familiarize yourself with tools such as R or Python for data manipulation and visualization, and learn how to use packages such as "dplyr" or "pandas" for data wrangling.
+
+* Learn GIS: Geographic information systems (GIS) are widely used in wildlife biology to map and analyze spatial data. Learn how to use GIS software such as ArcGIS or QGIS and become familiar with concepts such as projections, coordinate systems, and spatial data formats. Additionally, learn how to use R packages such as 'sf' and 'terra' for GIS. Understanding how to map and analyze spatial data will be extremely useful in a wildlife biology career.
+
+## Challenge
+```{r,eval=F}
+states <- st_read("path/to/states.shp")
+
+st_crs(states)
+
+states_transformed <- st_transform(states, 4326)
+
+state_areas <- st_area(states_transformed)
+
+elevation <- raster("path/to/elevation.tif")
+
+state_elevations <- extract(elevation, states_transformed)
+
+ggplot(data = data.frame(state_areas, state_elevations)) +
+  geom_point(aes(x = state_areas, y = state_elevations))
+
+hillshade <- terrain(elevation, aggregate = TRUE)
+ggplot(data = data.frame(state_areas, state_elevations)) +
+  geom_point(aes(x = state_areas, y = state_elevations)) +
+  geom_raster(data = hillshade, aes(fill = value), alpha = 0.5)
+
+
+```
+
+
+### chatGPT's tips for new R users
+* Start by learning the basics: Before diving into complex analyses, it's important to understand the basics of R, such as data types, data structures, and basic operations. This will make it easier to understand more advanced concepts and coding practices.
+
+* Use the built-in help function: R has an extensive help system that can be accessed by typing "?function_name" in the console. This will give you information about the function, its arguments, and examples of how to use it.
+
+* Learn the data manipulation packages: R has several powerful packages for data manipulation such as "dplyr", "tidyr", and "data.table" which are very useful to manipulate data.
+
+* Keep your code organized: As you work on larger projects, it's important to keep your code organized. Use meaningful variable and function names, comment your code, and use indentation to make it easy to read and understand.
+
+* Use the community: R has a large and active community of users. You can find answers to your questions on online forums, Stack Overflow, and other resources. Additionally, there are many R packages available for various analyses, which can make your work much easier.
+
+* Practice, practice, practice: The best way to learn R is by practicing. Start with small projects and work your way up to more complex analyses. The more you practice, the more comfortable you will become with the language.
+
+
+## Wildlife Location Data
+```{r}
+install.packages('move')
+require(move)
+
+fisher_raw <- move::fishers
+fisher_locs <- terra::vect(fisher_raw)
+fisher_locs
+head(fisher_locs)
+terra::plot(fisher_locs)
+
+library(ctmm)
+data("buffalo") #"coati","jaguar","pelican"
+head(buffalo$Cilla)
+df <- data.frame(buffalo$Cilla)
+fisher_locs <- sf::st_as_sf(df,
+                        coords = c("x","y"),
+                        crs = buffalo$Cilla@info$projection) %>%
+  terra::vect(.)
+
+## Map
+require(maptiles)
+require(dplyr)
+#Get background map tile
+  tile_zoom5 <- get_tiles(fisher_locs, provider = "Esri.WorldStreetMap", crop=F, zoom=5, cachedir = ".") %>%
+    terra::project(.,terra::crs(fisher_locs))
+  
+  tile_zoom8 <- get_tiles(fisher_locs, provider = "Esri.WorldStreetMap", crop=F, zoom=8, cachedir = ".") %>%
+    terra::project(.,terra::crs(fisher_locs))
+
+  tile_zoom10 <- get_tiles(fisher_locs, provider = "Esri.WorldImagery", crop=F, zoom=15, cachedir = ".") %>%
+    terra::project(.,terra::crs(fisher_locs))
+  #Create Full Map
+  map_z5 <- ggplot() + 
+    geom_spatraster_rgb(data = tile_zoom5, maxcell = Inf) +
+    geom_sf(data = fisher_locs, fill = NA, color = "#000000",) +
+    coord_sf(datum = pull_crs(fisher_locs)) + theme_minimal()
+  
+  map_z8 <- ggplot() + 
+    geom_spatraster_rgb(data = tile_zoom8, maxcell = Inf) +
+    geom_sf(data = fisher_locs, fill = NA, color = "#000000",) +
+    coord_sf(datum = pull_crs(fisher_locs)) + theme_minimal()
+  
+  map_z10 <- ggplot() + 
+    geom_spatraster_rgb(data = tile_zoom10, maxcell = Inf) +
+    geom_sf(data = fisher_locs, fill = NA, color = "yellow",) +
+    coord_sf(datum = pull_crs(fisher_locs)) + theme_minimal()
+
+map_z5
+map_z8  
+map_z10
+```
