@@ -140,25 +140,86 @@ You've just made your first simple map with 'ggplot2'!
 ## Challenge
 expand this and elaborate... include packages that have these test shapes and rasters as internal files...
 ```{r,eval=F}
-states <- st_read("path/to/states.shp")
+lux <- sf::st_read(system.file("ex/lux.shp", package="terra"))
 
-st_crs(states)
+head(lux)
 
-states_transformed <- st_transform(states, 4326)
+sf::st_crs(lux)
 
-state_areas <- st_area(states_transformed)
+lux_areas <-sf::st_area(lux) # square meters
+lux_areas_km2 <- as.numeric(lux_areas / 1000000) # square meters per square kilometer
+lux_areas_km2
 
-elevation <- raster("path/to/elevation.tif")
+## OR ##
+units::set_units(lux_areas,m^2) # square meters
+units::set_units(lux_areas,km^2) # square kilometers
+units::set_units(lux_areas,ha) # hectares
+units::set_units(lux_areas,acres) # acres
+units::set_units(lux_areas,mi^2) # square miles
+# # # # # # # # #
 
-state_elevations <- extract(elevation, states_transformed)
+lux_rast <- terra::vect(lux)
 
-ggplot(data = data.frame(state_areas, state_elevations)) +
-  geom_point(aes(x = state_areas, y = state_elevations))
+elev <- terra::rast(system.file("ex/elev.tif", package="terra"))
 
-hillshade <- terrain(elevation, aggregate = TRUE)
-ggplot(data = data.frame(state_areas, state_elevations)) +
-  geom_point(aes(x = state_areas, y = state_elevations)) +
-  geom_raster(data = hillshade, aes(fill = value), alpha = 0.5)
+terra::crs(lux_rast) == terra::crs(elev)
+
+lux_proj <- terra::project(lux_rast,elev)
+
+terra::crs(lux_proj) == terra::crs(elev)
+
+require(dplyr)
+lux_elev <- terra::extract(elev,lux,method = "simple") %>%
+  dplyr::group_by(ID) %>%
+  dplyr::summarise(Mean = mean(elevation,na.rm=T)) %>%
+  as.data.frame(.)
+lux_elev
+
+require(ggplot2)
+
+lux_shp <- lux %>%
+  dplyr::mutate(NAME = NAME_2) %>%
+  dplyr::select(NAME,POP,geometry) %>%
+  dplyr::mutate(AREA_km2 = lux_areas_km2,
+                ELEVATION_Mean = lux_elev$Mean)
+lux_shp
+
+ggplot(data = lux_shp) +
+  geom_sf(aes(fill=AREA_km2))
+
+ggplot(data = lux_shp) +
+  geom_sf(aes(fill=ELEVATION_Mean))
+
+ggplot(data = lux_shp) +
+  geom_sf(aes(fill=POP))
+
+###
+## Calculate Hillshade
+slp <- terra::terrain(elev,"slope",unit="radians")
+asp <- terra::terrain(elev,"aspect",unit="radians")
+hillshade <- terra::shade(slp,asp,10, 340)
+
+terra::plot(hillshade,col=grey(0:100/100), legend=FALSE, mar=c(2,2,1,4))
+
+install.packages('tidyterra')
+require(tidyterra)
+require(ggplot2)
+ggplot(lux_shp) +
+  geom_spatraster(data=hillshade) +
+  geom_spatvector(fill=NA) +
+  geom_spatvector_text(aes(label=NAME),color ="grey90") +
+  coord_sf(crs = 3857)
+  
+install.packages('ggnewscale')
+require(ggnewscale)
+ggplot() +
+  geom_spatraster(data = hillshade,show.legend = F,alpha=1) +
+  scale_fill_gradientn(colours = grey(0:100 / 100), na.value = NA) +
+  new_scale_fill() +
+  geom_spatvector(data=lux_shp,aes(fill=POP),alpha=0.4,color="black") +
+  scale_fill_whitebox_c(palette = "soft") +
+  geom_spatvector_text(data=lux_shp,aes(label=NAME),color ="grey90") +
+  coord_sf(crs = 3857)
 
 
 ```
