@@ -120,7 +120,7 @@ then press the <kbd>Enter</kbd> (Windows and Linux) or <kbd>Return</kbd> (MacOS)
 to execute the command.
 
 ```{r eval=FALSE}
-install.packages(c("tidyverse", "hexbin", "patchwork", "RSQLite"))
+install.packages(c("tidyverse", "hexbin", "patchwork"))
 ```
 
 Alternatively, you can install the packages using RStudio's graphical user 
@@ -135,7 +135,6 @@ packages by pasting the following code into the console:
 library(tidyverse)
 library(hexbin)
 library(patchwork)
-library(RSQLite)
 ```
 
 If you do not see an error like `there is no package called ‘...’` you are good 
