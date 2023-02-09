@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 # GIS Exercise
 
 ## Background
-Intro text...
+Now that you've had the day to get started with R, it is time to test your skills with some mapping exercises. 
 
 This exercise assumes basic familiarity with foundational geographic information science concepts:
 - Projections and Coordinate Reference Systems
@@ -104,7 +104,7 @@ ggplot() +
   geom_sf(data=point1,color='blue',size=2)
 ```
 
-Up until now, coordinate reference hasn't been a big deal. However, its always important to make sure the projections of all your layers are identical before trying to plot them together.
+Up until now, coordinate reference hasn't been a big deal. However, its always important to make sure the projections of all your layers are identical before trying to plot them together. You can look up codes here: https://spatialreference.org/
 ```{r first raster map}
 #Set CRS
 ## Convert 'sf' objects to 'terra'
