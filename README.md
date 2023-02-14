@@ -19,7 +19,7 @@ Packages we've used
 
 General
 - [Introduction R](https://cran.r-project.org/doc/manuals/R-intro.pdf)
-- [Advanced R - Hadley Wickham](https://adv-r.hadley.nz/)
+- [Advanced R - Hadley Wickham](https://adv-r.hadley.nz/)  
 Spatial Analysis
 - [Geocomputation in R](https://geocompr.robinlovelace.net/index.html)
 - [Spatial Data Science in R](https://rspatial.org/)
