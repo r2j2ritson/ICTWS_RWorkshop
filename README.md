@@ -17,6 +17,9 @@ Packages we've used
 - [tidyterra](https://dieghernan.github.io/tidyterra/articles/tidyterra.html)
 - [maptiles](https://cran.r-project.org/web/packages/maptiles/maptiles.pdf)
 
+General
+- [Introduction R](https://cran.r-project.org/doc/manuals/R-intro.pdf)
+- [Advanced R - Hadley Wickham](https://adv-r.hadley.nz/)
 Spatial Analysis
 - [Geocomputation in R](https://geocompr.robinlovelace.net/index.html)
 - [Spatial Data Science in R](https://rspatial.org/)
