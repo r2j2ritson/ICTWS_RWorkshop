@@ -24,3 +24,7 @@ General
 Spatial Analysis
 - [Geocomputation in R](https://geocompr.robinlovelace.net/index.html)
 - [Spatial Data Science in R](https://rspatial.org/)
+
+## Links for the Workshop
+- [Data Carpentries Lessons](https://datacarpentry.org/R-ecology-lesson/index.html)  
+- [Ether Pad]( https://pad.carpentries.org/-kRbnZZWgIfIM1WvfdjA)
