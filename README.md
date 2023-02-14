@@ -26,5 +26,6 @@ Spatial Analysis
 - [Spatial Data Science in R](https://rspatial.org/)
 
 ## Links for the Workshop
+- https://github.com/r2j2ritson/ICTWS_RWorkshop  
 - [Data Carpentries Lessons](https://datacarpentry.org/R-ecology-lesson/index.html)  
 - [Ether Pad]( https://pad.carpentries.org/-kRbnZZWgIfIM1WvfdjA)
